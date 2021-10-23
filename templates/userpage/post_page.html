@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head_content %}
+    <!-- demo styles -->
+    <link rel="stylesheet" href="{% static 'js/userpage/zuck_js/demo/style.css' %}">
+
+    <!-- lib styles -->
+    <link rel="stylesheet" href="{% static 'js/userpage/zuck_js/dist/zuck.min.css' %}">
+
+    <!-- lib skins -->
+    <link rel="stylesheet" href="{% static 'js/userpage/zuck_js/dist/skins/snapgram.css' %}">
+{% endblock head_content %}
+{% block css %}
+    #post_img{
+    height:360px;
+    width:460px;
+    }
+    .post_div
+    {
+    width:535px
+    }
+{% endblock css %}
+
+
+{% block nav_btn1 %}
+    <button type="button" class="btn btn-outline-primary ml-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Post
+    </button>
+{% endblock nav_btn1 %}
+
+{% block body %}
+    <div id="stories" class="storiesWrapper"></div>
+
+
+
+    {% for post in post %}
+        <div class="container my-4 post_div" id="{{ post.id }}">
+            <div class="card">
+                <div class="card-header"><a href="{% url 'user_profile' post.user %}" style="color:black">{{ post.user }}</a> <small>{{ post.date.date }}</small></div>
+                <div class="card-body">
+                    <p class="card-text">{{ post.caption }}</p>
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" alt="image" id="post_img"> <br><br>
+                    {% endif %}
+
+                    <button type="button" class="btn btn-light mr-3 like" id="{{ post.id }}">
+                        {% if post in liked_post %}
+                            <a href="{% url 'like_dislike_post' %}" style="text-decoration: none;color: red" id="likebtn{{ post.id }}">Liked</a>
+                        {% else %}
+                            <a href="{% url 'like_dislike_post' %}" style="text-decoration: none;color: red" id="likebtn{{ post.id }}">Like</a>
+                        {% endif %}
+                    </button>
+                    <a role="button" class="btn btn-warning mx-2" href="{% url 'comment' %}">Comment</a>
+                    <button type="button" class="btn btn-primary mx-4">Report</button>
+                    {% if request.user == post.user %}
+                        <a class="btn btn-danger ml-4 delete" id="{{ post.id }}" href="{% url 'delete_post' post.id %}">Delete</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock body %}
+
+
+{% block modals %}
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Make a Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form method="post" action="{% url 'post' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="caption" class="form-label">Caption :</label> <br>
+                            <textarea name="caption" id="caption" cols="48" rows="10" placeholder="write here.." class="ml-4"></textarea>
+
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Image: </label> <br>
+                            <input type="file" class="form-control" id="image" name="image">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Post</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock modals %}
+
+{% block js %}
+    <script>
+        $(".delete").click(function (e) {
+            var id = this.id;
+            var href = this.href;
+            console.log(href, id);
+            e.preventDefault();
+
+            $.ajax({
+                url: href,
+                data: {},
+            });
+            $("#" + id).fadeOut(1000);
+        });
+
+        $(".like").click(function (e) {
+            var id = this.id;
+            var href = $(".like").find("a").attr("href");
+            console.log(href, id);
+            e.preventDefault();
+
+            $.ajax({
+                url: href,
+                data: {"likeId": id},
+                success: function (response) {
+                    //console.log(response);
+                    if (response.liked) {
+                        $("#likebtn" + id).html('liked')
+                    } else {
+                        $("#likebtn" + id).html('like')
+                    }
+                }
+            });
+            //$("#" + id).fadeOut(1000);
+        });
+    </script>
+    <script src="{% static 'js/userpage/zuck_js/dist/zuck.min.js' %}"></script>
+    <script src="{% static 'js/userpage/zuck_js/demo/script.js' %}"></script>
+
+{% endblock js %}

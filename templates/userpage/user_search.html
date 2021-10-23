@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block body %}
+    <div class="container my-4 mx-4">
+        {% if not object_list %}
+            <h1>No such result</h1>
+
+        {% else %}
+            {% for i in object_list %}
+                <div class="card my-2">
+                    <div class="card-body">
+                        <h1>{{ i.username }}</h1>
+                        <a type="button" name="button" class="btn btn-primary" role="button" href="{% url 'user_profile' i.username %}">view</a>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% if is_paginated %}
+                <a href="?page=1" class="btn btn-outline-primary" role="button">First</a>
+
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-primary" role="button">{{ page_obj.previous_page_number }}</a>
+                {% endif %}
+
+                {% if page_obj.number != 1 %}
+                    <a href="?page={{ page_obj.number }}" class="btn btn-outline-primary" role="button">{{ page_obj.number }}</a>
+                {% endif %}
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-primary" role="button">{{ page_obj.next_page_number }}</a>
+                {% endif %}
+
+            {% endif %}
+
+            {#        {% for i in page_obj.paginator.page_range %}#}
+            {#            {% if i == page_obj.number %}#}
+            {#                <a href="?page={{ i }}" class="btn btn-primary" role="button">{{ i }}</a>#}
+            {#            {% endif %}#}
+            {#            <a href="?page={{ i }}" class="btn btn-outline-primary" role="button">{{ i }}</a>#}
+            {#        {% endfor %}#}
+        {% endif %}
+    </div>
+
+{% endblock body %}

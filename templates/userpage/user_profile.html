@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block css %}
+
+    .user_image
+    {
+    height:200px;
+    width:200px;
+    border-radius:50%;
+    }
+    .info
+    {
+    padding-top:2%;
+    padding-left:2%;
+    display:inline-block;
+    }
+
+    hr{
+    border-top: 3px solid black;
+    }
+    .pst
+    {
+    height:200px;
+    width:350px;
+    margin-bottom:30px;
+    }
+
+    #follow{
+    color:blue;
+    }
+    #follow:hover{
+    color:white;
+    }
+{% endblock css %}
+
+{% block body %}
+    <div class="container my-4">
+        <div class="media">
+            <img class="align-self-start mr-3 user_image" src="{{ user_image.url }}" alt="">
+            <div class="media-body info">
+
+                <h4 class="mt-0 ">{{ user_obj.username }}</h4>
+                {% if connection_f and not request.user == user_obj %}
+                    <a type="button" id="follow" class="btn btn-outline-primary" role="button" href="{% url 'follow' user_obj.username %}">unfollow</a>
+                {% elif not connection_f and request.user == user_obj %}
+                    <a type="button" id="follow" class="btn btn-outline-primary" role="button" href="{% url 'follow' user_obj.username %}">follow</a>
+                {% endif %}
+
+                <p>follower:{{ follower }} following:{{ following }}</p>
+                <p><b>{{ bio }}</b></p>
+            </div>
+        </div>
+        <hr>
+
+        <div class="row">
+            {% for i in post %}
+                {% for j in i %}
+                    <div class="col-md-4 ">
+                        <img src="{{ j.image.url }}" alt="Image" class="pst">
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock body %}
+
+{% block js %}
+    <script type="text/javascript">
+        $("#follow").click(function (e) {
+            e.preventDefault();
+            var href = this.href;
+            console.log(href);
+            $.ajax({
+                url: href,
+                success: function (response) {
+                    console.log(response)
+                    if (response["following"]) {
+                        $("#follow").html("Unfollow");
+                    } else {
+                        $("#follow").html("follow");
+                    }
+                }
+
+            });
+
+        })
+
+    </script>
+
+{% endblock js %}
